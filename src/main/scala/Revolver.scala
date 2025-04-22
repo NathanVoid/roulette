@@ -2,25 +2,26 @@
 
 import scala.util.Random
 
-class Revolver(var bullets: List[Bullet]) {
+class Revolver(private var bullets: List[Bullet]) {
+
   def spin(): Unit = {
     bullets = Random.shuffle(bullets)
   }
 
-  def pullTrigger(): Option[Bullet] = {
-    bullets match {
-      case Nil => None
-      case head :: tail =>
-        bullets = tail
-        Some(head)
-    }
+  def pullTrigger(): Option[Bullet] = bullets match {
+    case head :: tail =>
+      bullets = tail
+      Some(head)
+    case Nil => None
   }
 
   def isEmpty: Boolean = bullets.isEmpty
 
   def remainingBullets: String = {
-    val liveCount = bullets.count(_ == Live)
-    val blankCount = bullets.count(_ == Blank)
+    val (liveCount, blankCount) = bullets.foldLeft((0, 0)) {
+      case ((live, blank), Live)  => (live + 1, blank)
+      case ((live, blank), Blank) => (live, blank + 1)
+    }
     s"$liveCount live, $blankCount blank"
   }
 }
@@ -31,7 +32,6 @@ object Revolver {
     val liveCount = Random.between(1, totalBullets)
     val blankCount = totalBullets - liveCount
 
-    val bullets = List.fill(liveCount)(Live) ++ List.fill(blankCount)(Blank)
-    Random.shuffle(bullets)
+    Random.shuffle(List.fill(liveCount)(Live) ++ List.fill(blankCount)(Blank))
   }
 }
