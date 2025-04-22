@@ -7,6 +7,7 @@ class Game {
   val ai = new AI
   var revolver: Revolver = _
   var round = 0
+  var bulletsFired = 0  // Track how many bullets have been fired
 
   def start(): Unit = {
     println("Welcome to Russian Roulette!\n")
@@ -40,6 +41,12 @@ class Game {
         playerTurnActive = true
         continueRound = player.isAlive && ai.isAlive && !revolver.isEmpty
       }
+
+      // After each round, show the bullet count comparison
+      println(s"\nBullets fired this round: $bulletsFired")
+      val liveBullets = revolver.bullets.count(_ == Live)
+      val blankBullets = revolver.bullets.count(_ == Blank)
+      println(s"Bullets remaining (Live: $liveBullets, Blank: $blankBullets)\n")
     }
     endGame()
   }
@@ -95,6 +102,7 @@ class Game {
             } else 1
             println("Bang! You shot yourself.")
             player.takeDamage(damage)
+            bulletsFired += 1  // Increment bullets fired
             return false
           case Blank =>
             println("Click! It was a blank. You get another turn.")
@@ -113,6 +121,7 @@ class Game {
             } else 1
             println(s"Bang! AI got hit for $damage damage.")
             ai.takeDamage(damage)
+            bulletsFired += 1  // Increment bullets fired
             return false
           case Blank =>
             println("Click! It was a blank. Turn ends.")
@@ -168,6 +177,7 @@ class Game {
           case Live =>
             println("Bang! AI shot itself.")
             ai.takeDamage(1)
+            bulletsFired += 1  // Increment bullets fired
             return false
           case Blank =>
             println("Click! Blank bullet. AI gets another turn.")
@@ -179,6 +189,7 @@ class Game {
           case Live =>
             println("Bang! You got hit.")
             player.takeDamage(1)
+            bulletsFired += 1  // Increment bullets fired
             return false
           case Blank =>
             println("Click! Blank bullet.")
@@ -190,6 +201,7 @@ class Game {
           case Live =>
             println("Bang! You got hit hard!")
             player.takeDamage(2)
+            bulletsFired += 1  // Increment bullets fired
             return false
           case Blank =>
             println("Click! Blank bullet.")
@@ -198,7 +210,7 @@ class Game {
 
       case "skip" =>
         println("AI used Lemonade to fire the bullet into the air.")
-        revolver.pullTrigger()
+        revolver.pullTrigger() // Skip firing the bullet
         return true
 
       case "heal" =>
